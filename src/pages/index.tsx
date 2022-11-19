@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Flex, Heading, useToast } from "@chakra-ui/react";
+import { Box, Flex, Heading, Spinner, useToast } from "@chakra-ui/react";
 
 import { TabNavigationBar } from "../components/TabNavigationBar";
 import { ScheduleCard, ScheduleData } from "../components/ScheduleCard";
@@ -11,13 +11,28 @@ interface HomeProps {
 }
 
 export default function Home(props: HomeProps) {
+  const [isLoading, setIsLoading] = useState(false);
   const [schedules, setSchedules] = useState<ScheduleData[]>([]);
 
   const toast = useToast();
 
+  async function fetchSchedules() {
+    try {
+      setIsLoading(true);
+      const schedulesResponse = await api.get("/schedules/");
+      setSchedules(schedulesResponse.data);
+    } catch (error) {
+      setSchedules(props.schedulesList);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   async function handleToMeet(id: string) {
     try {
-      await api.delete(`/schedules/${id}`);
+      await api.delete(`/schedules/${id}/`);
+
+      fetchSchedules();
 
       toast({
         title: "Atendido com sucesso!",
@@ -38,7 +53,14 @@ export default function Home(props: HomeProps) {
   }
 
   useEffect(() => {
-    setSchedules(props.schedulesList);
+    try {
+      setIsLoading(true);
+      setSchedules(props.schedulesList);
+    } catch (error) {
+      setSchedules([]);
+    } finally {
+      setIsLoading(false);
+    }
   }, [props.schedulesList]);
 
   return (
@@ -54,13 +76,21 @@ export default function Home(props: HomeProps) {
       </Box>
 
       <Box className="flex  flex-col gap-3 pt-2 w-[50%]">
-        {schedules.map((item) => (
-          <ScheduleCard
-            key={item.scheduleID}
-            {...item}
-            onToMeet={() => handleToMeet(item.scheduleID)}
+        {isLoading ? (
+          <Spinner
+            color="gray.700"
+            size="xl"
+            className="flex self-center mt-[20%]"
           />
-        ))}
+        ) : (
+          schedules.map((item) => (
+            <ScheduleCard
+              key={item.scheduleID}
+              {...item}
+              onToMeet={() => handleToMeet(item.scheduleID)}
+            />
+          ))
+        )}
       </Box>
     </Flex>
   );

@@ -51,7 +51,6 @@ export default function Schedule(props: ScheduleProps) {
     }
 
     const emptyValue = Object.entries(scheduling).find((item) => !item[1]);
-    console.log("emptyValue", emptyValue);
 
     if (emptyValue && emptyValue.length > 0) {
       return setIsError(emptyValue[0] as FieldTypes);
@@ -71,7 +70,6 @@ export default function Schedule(props: ScheduleProps) {
         });
       } else throw new Error("");
     } catch (error) {
-      console.log(error);
       setIsError("tryAgain");
     }
   }
