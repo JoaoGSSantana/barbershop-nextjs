@@ -4,7 +4,7 @@ import ptBR from "dayjs/locale/pt-br";
 import { Button, ButtonGroup } from "@chakra-ui/react";
 
 export type ScheduleData = {
-  id?: string;
+  scheduleID: string;
   client: string;
   service: string;
   date: string;
@@ -12,13 +12,18 @@ export type ScheduleData = {
   barber: string;
 };
 
+interface Props extends ScheduleData {
+  onToMeet?: () => void;
+}
+
 export function ScheduleCard({
   client,
   service,
   date,
   time,
   barber,
-}: ScheduleData) {
+  onToMeet,
+}: Props) {
   const when = dayjs(date).locale(ptBR).format("DD [de] MMMM [de] YYYY");
 
   return (
@@ -51,7 +56,9 @@ export function ScheduleCard({
             </div>
           </div>
           <ButtonGroup alignItems="flex-end" justifyContent="flex-end" gap={2}>
-            <Button colorScheme="green">Atendido </Button>
+            <Button colorScheme="green" onClick={onToMeet}>
+              Atendido{" "}
+            </Button>
           </ButtonGroup>
         </div>
       </div>
